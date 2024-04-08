@@ -63,7 +63,7 @@ typedef struct
  *
  * @param waveData
  */
-void fullPipeline(Wave_Data_t waveData, uint32_t WaveDirNo);
+void fullPipeline(Wave_Data_t *waveData, uint32_t WaveDirNo);
 
 /**
  *

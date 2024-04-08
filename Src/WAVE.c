@@ -7,8 +7,9 @@
  */
 
 /*User Includes-------------------------------------------------*/
-#include "WaveFunctions.h"
+#include "WAVE.h"
 #include "HAL_SD.h"
+#include "arm_math.h"
 /*End User Includes--------------------------------------------*/
 
 /*Private Variables---------------------------------------------*/
@@ -27,7 +28,7 @@ const float32_t firCoeffs32[NUM_TAPS_ARRAY_SIZE] = {
  * @param freqSegments
  * @param PSDOutput
  */
-void fullPipeline(Wave_Data_t waveData, uint32_t WaveDirNo)
+void fullPipeline(Wave_Data_t *waveData, uint32_t WaveDirNo)
 {
 
 	float32_t PSD[FFT_LENGTH];
