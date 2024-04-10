@@ -21,7 +21,7 @@
 #define FFT_LENGTH 1024
 #define SEGMENT_NO 5
 #define DECIMATION_CONSTANT 16
-#define F_SAMPLE 100
+#define F_SAMPLE 104
 #define IFFT 1
 #define FFT 0
 //LPF Decimate Defintions
@@ -63,7 +63,7 @@ typedef struct
  *
  * @param waveData
  */
-void fullPipeline(Wave_Data_t *waveData, uint32_t WaveDirNo);
+void fullPipeline(Wave_Data_t waveData, uint32_t WaveDirNo);
 
 /**
  *

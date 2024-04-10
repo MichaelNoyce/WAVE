@@ -17,8 +17,7 @@
 //LPF Filter variables
 static float32_t firStateF32[BLOCK_SIZE + NUM_TAPS - 1];
 const float32_t firCoeffs32[NUM_TAPS_ARRAY_SIZE] = {
-		-0.000507108,0.00060588544,0.0022346291,0.0041320574,0.0049896598,0.0027761064,-0.0039325649,-0.014233556,-0.02388016,-0.025932499,-0.013265496,0.017937982,0.065337906,0.1198292,0.16786738,0.19604058,
-		0.19604058,0.16786738,0.1198292,0.065337906,0.017937982,-0.013265496,-0.025932499,-0.02388016,-0.014233556,-0.0039325649,0.0027761064,0.0049896598,0.0041320574,0.0022346291,0.00060588544,-0.000507108
+		0.00251240944810394,0.00312707878616391,0.00451235694993659,0.00680393428856072,0.0100755541121319,0.0143279617567923,0.0194834494742694,0.0253866652999644,0.0318118288415239,0.0384759479928208,0.0450571065900547,0.051216441065083,0.0566220853690755,0.060973169244554,0.0640219240256733,0.0655920867552915,0.0655920867552915,0.0640219240256733,0.060973169244554,0.0566220853690755,0.051216441065083,0.0450571065900547,0.0384759479928208,0.0318118288415239,0.0253866652999644,0.0194834494742694,0.0143279617567923,0.0100755541121319,0.00680393428856072,0.00451235694993659,0.00312707878616391,0.00251240944810394
 };
 
 /*----------------------------------------------------------------*/
@@ -28,7 +27,7 @@ const float32_t firCoeffs32[NUM_TAPS_ARRAY_SIZE] = {
  * @param freqSegments
  * @param PSDOutput
  */
-void fullPipeline(Wave_Data_t *waveData, uint32_t WaveDirNo)
+void fullPipeline(Wave_Data_t waveData, uint32_t WaveDirNo)
 {
 
 	float32_t PSD[FFT_LENGTH];
@@ -254,7 +253,7 @@ void HPFDoubleIntegration(float32_t* rfftInput, float32_t* waveAmplitude)
 {
 	float32_t freq1 = 0.02;
 	float32_t freq2 = 0.03;
-	float32_t fnyq = 6.25;
+	float32_t fnyq = F_SAMPLE/DECIMATION_CONSTANT/2;
 	uint32_t i;
 	float32_t Fs = F_SAMPLE/DECIMATION_CONSTANT;
 	float32_t freq[FFT_LENGTH/2];
@@ -274,7 +273,7 @@ void HPFDoubleIntegration(float32_t* rfftInput, float32_t* waveAmplitude)
 	{
 		if(freq[i]<freq1)
 		{
-			waveAmplitude[i] = 0;
+			waveAmplitude[i] = 0.0f;
 		}
 
 		if(freq[i]>=freq1 && freq[i]<freq2)
@@ -289,7 +288,7 @@ void HPFDoubleIntegration(float32_t* rfftInput, float32_t* waveAmplitude)
 
 		if(isnan(waveAmplitude[i]))
 		{
-			waveAmplitude[i] = 0;
+			waveAmplitude[i] = 0.0f;
 		}
 
 	}
@@ -322,6 +321,17 @@ void WelchMethod(float32_t* PSD, uint32_t waveDirNo)
 		//FFT each segment
 		embeddedFFT(singleSegment, singleSegmentFFT, FFT_LENGTH, FFT);
 		arm_cmplx_mag_f32(singleSegmentFFT+2, singleSegmentMag+1, FFT_LENGTH/2-1);
+		//Remove frequencies above 2 Hz 
+		int index_1Hz = (1 * FFT_LENGTH) / ( F_SAMPLE / DECIMATION_CONSTANT);
+		// Set all frequency bins beyond index_1Hz to zero
+		for (int i = index_1Hz + 1; i < FFT_LENGTH / 2; i++) {
+			singleSegmentMag[i] = 0.0f;  // Assuming outputF32 is your RFFT result array
+		}
+		int index_0_03Hz = (0.05 * FFT_LENGTH) / ( F_SAMPLE / DECIMATION_CONSTANT);
+		// Set all frequency bins bleow index_0_03Hz to zero
+		for (int i = 0; i < index_0_03Hz; i++) {
+			singleSegmentMag[i] = 0.0f;  // Assuming outputF32 is your RFFT result array
+		}
 		//Fill waveAmplitudeArray with segments
 		for(j = 0; j<FFT_LENGTH/2; j++)
 		{
